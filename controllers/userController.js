@@ -91,7 +91,17 @@ const signup = async (req, res) =>{
                 console.log(req.body);
                 logs.newLog.log('info', "Signup Successfull");
                 addNew.save();
-                res.status(201).send("New User Addedd");
+                res.status(201).send({
+                    Response: "Signup Successfull",
+                    Request_Status: 1,
+                    userId: userId,
+                    doc_num: totalNum,
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    otp: OTP,
+                    status:0
+                });
 
             }
 
@@ -136,6 +146,43 @@ const otpVerification = async (req, res) =>{
                 
             const updateStatus =  await User.updateOne({ phone: req.body.phone }, {$set: {status: 1}});
 
+            console.log("Signup Success");
+            res.send("Signup Success");
+            logs.newLog.log('info', "Signup OTP Matched");
+
+            }else{
+            console.log("Invalid Otp");
+            res.send("Invalid Otp");
+            }
+            console.log(getOtp);
+            res.send({data});
+        }else{
+            console.log("User Not Found");
+            res.send("User Not Found");
+
+        }
+
+    }catch(e) {
+
+        console.log(e);
+
+    }
+}
+
+const loginOtp = async (req, res) =>{
+
+    try{
+
+        const data = await User.findOne({phone: req.body.phone});
+        
+        if(data) {
+            const getOtp = data.otp;
+            const userOtp = req.body.otp;
+
+            if(getOtp == userOtp ){
+                
+            const updateStatus =  await User.updateOne({ phone: req.body.phone }, {$set: {status: 1}});
+
             console.log("Login Success");
             res.send("Login Success");
             logs.newLog.log('info', "OTP Matched");
@@ -147,8 +194,8 @@ const otpVerification = async (req, res) =>{
             console.log(getOtp);
             res.send({data});
         }else{
-            console.log("Signup Successfully");
-            res.send("Signup Successfully");
+            console.log("User Not Found");
+            res.send("User Not Found");
 
         }
 
@@ -160,4 +207,4 @@ const otpVerification = async (req, res) =>{
 }
 
 
-module.exports = {signup, login, otpVerification};
+module.exports = {signup, login, otpVerification, loginOtp};
