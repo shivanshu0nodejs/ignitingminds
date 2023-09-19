@@ -49,6 +49,7 @@ const signup = async (req, res) =>{
                 }
                 console.log(OTP);
                 var phNum = req.body.phone;
+                console.log("====="+phNum);
                 var msg = `Dear ${req.body.name}, ${OTP} is your LivFitt login OTP, do not share it with anyone. LivFitt`;
                 let data = new FormData();
                 data.append('apikey', 'NmU3ODU1Mzk3YTZhNzE2NjQzNGI3NDM0NDQzMTRiNGM=');
