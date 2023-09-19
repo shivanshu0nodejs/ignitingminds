@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
         required: [true, "Please Enter Email"]
     },
     phone:{
-        type: Number,
+        type: String,
         required: [true, "Please Enter Number"]
     },
     otp:{
