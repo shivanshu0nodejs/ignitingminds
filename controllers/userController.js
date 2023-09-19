@@ -206,5 +206,42 @@ const loginOtp = async (req, res) =>{
     }
 }
 
+const resendOtp = async (req, res) =>{
 
-module.exports = {signup, login, otpVerification, loginOtp};
+    try{
+
+        const data = await User.findOne({phone: req.body.phone});
+        
+        if(data) {
+            const getOtp = data.otp;
+            const userOtp = req.body.otp;
+
+            if(getOtp == userOtp ){
+                
+            const updateStatus =  await User.updateOne({ phone: req.body.phone }, {$set: {status: 1}});
+
+            console.log("Login Success");
+            res.send("Login Success");
+            logs.newLog.log('info', "OTP Matched");
+
+            }else{
+            console.log("Invalid Otp");
+            res.send("Invalid Otp");
+            }
+            console.log(getOtp);
+            res.send({data});
+        }else{
+            console.log("User Not Found");
+            res.send("User Not Found");
+
+        }
+
+    }catch(e) {
+
+        console.log(e);
+
+    }
+}
+
+
+module.exports = {signup, login, otpVerification, loginOtp, resendOtp};
