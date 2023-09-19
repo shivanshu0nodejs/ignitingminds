@@ -173,7 +173,42 @@ const loginOtp = async (req, res) =>{
 
     try{
 
+                var digits = '0123456789';
+                let OTP = '';
+                for (let i = 0; i < 4; i++ ) {
+                    OTP += digits[Math.floor(Math.random() * 10)];
+                }
+                console.log(OTP);
+                var phNum = req.body.phone;
+                console.log("====="+phNum);
+                var msg = `Dear ${req.body.name}, ${OTP} is your LivFitt login OTP, do not share it with anyone. LivFitt`;
+                let data = new FormData();
+                data.append('apikey', 'NmU3ODU1Mzk3YTZhNzE2NjQzNGI3NDM0NDQzMTRiNGM=');
+                data.append('numbers', phNum);
+                data.append('sender', 'LVFITT');
+                data.append('message', msg);
+                
+                let config = {
+                  method: 'post',
+                  maxBodyLength: Infinity,
+                  url: 'https://api.textlocal.in/send/',
+                  headers: { 
+                    'Cookie': 'PHPSESSID=t9ptng990ncra53oilasq0mf56', 
+                    ...data.getHeaders()
+                  },
+                  data : data
+                };
+                
+                axios.request(config)
+                .then((response) => {
+                  console.log(JSON.stringify(response.data));
+                })
+                .catch((error) => {
+                  console.log(error);
+                });
+
         const data = await User.findOne({phone: req.body.phone});
+        const updateStatus =  await User.updateOne({ phone: req.body.phone }, {$set: {otp: OTP}});
         
         if(data) {
             const getOtp = data.otp;
