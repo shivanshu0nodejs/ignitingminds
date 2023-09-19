@@ -147,8 +147,8 @@ const otpVerification = async (req, res) =>{
             console.log(getOtp);
             res.send({data});
         }else{
-            console.log("User Not Found");
-            res.send("User Not Found");
+            console.log("Signup Successfully");
+            res.send("Signup Successfully");
 
         }
 
