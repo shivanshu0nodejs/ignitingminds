@@ -12,14 +12,12 @@ const signup = async (req, res) =>{
 
             if(check){
 
-                console.log("User Already Registered");
                 res.send("User Already Registered");
 
             }else{
     
                 const total = await User.countDocuments({});
 
-                console.log(total);
 
                 if(total>0){
                     
@@ -47,9 +45,8 @@ const signup = async (req, res) =>{
                 for (let i = 0; i < 4; i++ ) {
                     OTP += digits[Math.floor(Math.random() * 10)];
                 }
-                console.log(OTP);
+
                 var phNum = req.body.phone;
-                console.log("====="+phNum);
                 var msg = `Dear ${req.body.name}, ${OTP} is your LivFitt login OTP, do not share it with anyone. LivFitt`;
                 let data = new FormData();
                 data.append('apikey', 'NmU3ODU1Mzk3YTZhNzE2NjQzNGI3NDM0NDQzMTRiNGM=');
@@ -70,7 +67,7 @@ const signup = async (req, res) =>{
                 
                 axios.request(config)
                 .then((response) => {
-                  console.log(JSON.stringify(response.data));
+
                 })
                 .catch((error) => {
                   console.log(error);
@@ -88,7 +85,7 @@ const signup = async (req, res) =>{
                     otp: OTP,
                     status:0
                 });
-                console.log(req.body);
+
                 logs.newLog.log('info', "Signup Successfull");
                 addNew.save();
                 res.status(201).send({
@@ -102,12 +99,12 @@ const signup = async (req, res) =>{
                     otp: OTP,
                     status:0
                 });
-
             }
 
         }catch(e){
     
             console.log(e);
+            res.send(e);
         }
 };
 
@@ -132,7 +129,7 @@ const login = async (req, res) =>{
 
 };
 
-const otpVerification = async (req, res) =>{
+const signupOtp = async (req, res) =>{
 
     try{
 
@@ -146,9 +143,9 @@ const otpVerification = async (req, res) =>{
                 
             const updateStatus =  await User.updateOne({ phone: req.body.phone }, {$set: {status: 1}});
 
-            console.log("Signup Success");
-            res.send("Signup Success");
-            logs.newLog.log('info', "Signup OTP Matched");
+            console.log("Login Success");
+            res.send("Login Success");
+            logs.newLog.log('info', "OTP Matched");
 
             }else{
             console.log("Invalid Otp");
@@ -173,45 +170,12 @@ const loginOtp = async (req, res) =>{
 
     try{
 
-                var digits = '0123456789';
-                let OTP = '';
-                for (let i = 0; i < 4; i++ ) {
-                    OTP += digits[Math.floor(Math.random() * 10)];
-                }
-                console.log(OTP);
-                var phNum = req.body.phone;
-                console.log("====="+phNum);
-                var msg = `Dear Name, ${OTP} is your LivFitt login OTP, do not share it with anyone. LivFitt`;
-                let data = new FormData();
-                data.append('apikey', 'NmU3ODU1Mzk3YTZhNzE2NjQzNGI3NDM0NDQzMTRiNGM=');
-                data.append('numbers', phNum);
-                data.append('sender', 'LVFITT');
-                data.append('message', msg);
-                
-                let config = {
-                  method: 'post',
-                  maxBodyLength: Infinity,
-                  url: 'https://api.textlocal.in/send/',
-                  headers: { 
-                    'Cookie': 'PHPSESSID=t9ptng990ncra53oilasq0mf56', 
-                    ...data.getHeaders()
-                  },
-                  data : data
-                };
-                
-                axios.request(config)
-                .then((response) => {
-                  console.log(JSON.stringify(response.data));
-                })
-                .catch((error) => {
-                  console.log(error);
-                });
+        const data1 = await User.findOne({phone: req.body.phone});
 
-        const data = await User.findOne({phone: req.body.phone});
-        const updateStatus =  await User.updateOne({ phone: req.body.phone }, {$set: {otp: OTP}});
-        
-        if(data) {
-            const getOtp = data.otp;
+        if(data1){
+
+
+            const getOtp = data1.otp;
             const userOtp = req.body.otp;
 
             if(getOtp == userOtp ){
@@ -226,8 +190,7 @@ const loginOtp = async (req, res) =>{
             console.log("Invalid Otp");
             res.send("Invalid Otp");
             }
-            console.log(getOtp);
-            res.send({data});
+
         }else{
             console.log("User Not Found");
             res.send("User Not Found");
@@ -245,26 +208,53 @@ const resendOtp = async (req, res) =>{
 
     try{
 
-        const data = await User.findOne({phone: req.body.phone});
+        const data1 = await User.findOne({phone: req.body.phone});
         
-        if(data) {
-            const getOtp = data.otp;
-            const userOtp = req.body.otp;
+        if(data1) {
 
-            if(getOtp == userOtp ){
-                
-            const updateStatus =  await User.updateOne({ phone: req.body.phone }, {$set: {status: 1}});
-
-            console.log("Login Success");
-            res.send("Login Success");
-            logs.newLog.log('info', "OTP Matched");
-
-            }else{
-            console.log("Invalid Otp");
-            res.send("Invalid Otp");
+            var digits = '0123456789';
+            let OTP = '';
+            for (let i = 0; i < 4; i++ ) {
+                OTP += digits[Math.floor(Math.random() * 10)];
             }
-            console.log(getOtp);
-            res.send({data});
+            console.log(OTP);
+            var phNum = req.body.phone;
+            var msg = `Dear ${data1.name}, ${OTP} is your LivFitt login OTP, do not share it with anyone. LivFitt`;
+            let data = new FormData();
+            data.append('apikey', 'NmU3ODU1Mzk3YTZhNzE2NjQzNGI3NDM0NDQzMTRiNGM=');
+            data.append('numbers', phNum);
+            data.append('sender', 'LVFITT');
+            data.append('message', msg);
+            
+            let config = {
+              method: 'post',
+              maxBodyLength: Infinity,
+              url: 'https://api.textlocal.in/send/',
+              headers: { 
+                'Cookie': 'PHPSESSID=t9ptng990ncra53oilasq0mf56', 
+                ...data.getHeaders()
+              },
+              data : data
+            };
+
+            axios.request(config)
+            .then((response) => {
+              console.log(JSON.stringify(response.data));
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+
+            const updateOtp =  await User.updateOne({ phone: req.body.phone }, {$set: {otp: OTP}});
+
+            console.log("OTP Sent");
+            res.send({
+                Request_Status: "OTP Sent",
+                Otp: OTP
+                
+            });
+            logs.newLog.log('info', "OTP Sent");
+
         }else{
             console.log("User Not Found");
             res.send("User Not Found");
@@ -279,4 +269,4 @@ const resendOtp = async (req, res) =>{
 }
 
 
-module.exports = {signup, login, otpVerification, loginOtp, resendOtp};
+module.exports = {signup, login, signupOtp, loginOtp, resendOtp};
